@@ -2,7 +2,6 @@ const db = require("../models/db");
 const User = db.users;
 const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const tokenController = require("./tokens.controller");
 
 exports.create = async (req, res) => {

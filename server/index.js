@@ -27,7 +27,7 @@ db.sequelize
   .sync()
   .then(() => {
     console.log(
-      `✔ Подключение к серверу БД ${chalk.yellow(
+      `${chalk.green('✔')} Подключение к серверу БД ${chalk.magenta(
         dbConfig.DIALECT
       )} успешно установлено`
     );
@@ -35,6 +35,7 @@ db.sequelize
   .catch((e) => {
     console.error(`❌ Ошибка при подключении БД\n${chalk.red(e)}`);
   });
+
 
 const baseApiUrl = "/api/";
 const categoriesRouter = require("./routes/categories.route");
@@ -51,7 +52,7 @@ app.use(errorMiddleware);
 
 app
   .listen(port, () => {
-    console.log(`✔ Сервер запущен на порту ${chalk.magenta(port)}`);
+    console.log(`${chalk.green('✔')} Сервер запущен на порту ${chalk.magenta(port)}`);
   })
   .on("error", (e) => {
     console.error(`❌ Ошибка при запуске сервера\n${chalk.red(e)}`);

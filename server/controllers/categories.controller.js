@@ -3,7 +3,8 @@ const Category = db.categories;
 const Op = db.Sequelize.Op;
 const ApiError = require("../errors/api.error");
 
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
+  try {
   const { name, url } = req.body;
 
   const checkName = await Category.findOne({
@@ -33,25 +34,32 @@ exports.create = async (req, res) => {
     url: url,
   });
   res.status(200).send(category);
+} catch(e) {
+  next(e)
+}
 };
 
-exports.getAll = async (req, res) => {
-  const categories = await Category.findAndCountAll({
-    include: [
-      {
-        model: db.subcategories,
-        as: "subcategories",
-        include: [
-          {
-            model: db.articles,
-            as: "articles",
-          },
-        ],
-      },
-    ],
-  });
-  if (!categories) res.status(404).send("Категории не найдены");
-  res.status(200).send(categories);
+exports.getAll = async (req, res, next) => {
+  try {
+    const categories = await Category.findAndCountAll({
+      include: [
+        {
+          model: db.subcategories,
+          as: "subcategories",
+          include: [
+            {
+              model: db.articles,
+              as: "articles",
+            },
+          ],
+        },
+      ],
+    });
+    if (!categories) res.status(404).send("Категории не найдены");
+    res.status(200).send(categories);
+  } catch(e) {
+    next(e)
+  }
 };
 
 exports.getById = async (req, res) => {

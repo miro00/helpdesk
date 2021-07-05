@@ -1,12 +1,13 @@
-const ApiError = require("../errors/api.error");
+const fs = require('fs')
+const path = require('path')
 
 module.exports = (err, req, res, next) => {
-  console.error(err);
-  if (err instanceof ApiError) {
-    return res
-      .status(err.status)
-      .send({ message: err.message, errors: err.errors });
-  }
-
-  return res.status(500).send({ message: "Непредвиденная ошибка" });
-};
+  fs.appendFileSync(`${path.dirname(require.main.filename)}/logs/${new Intl.DateTimeFormat().format(new Date())}.log`,
+  `${new Intl.DateTimeFormat("ru", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  }).format(new Date())} - ${err}\n`
+  )
+  res.send(err)
+}
