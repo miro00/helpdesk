@@ -5,38 +5,38 @@ const ApiError = require("../errors/api.error");
 
 exports.create = async (req, res, next) => {
   try {
-  const { name, url } = req.body;
+    const { name, url } = req.body;
 
-  const checkName = await Category.findOne({
-    where: {
+    const checkName = await Category.findOne({
+      where: {
+        name: name,
+      },
+    });
+    if (checkName) {
+      return res
+        .status(400)
+        .send({ message: "Категория с таким названием уже существует" });
+    }
+
+    const checkUrl = await Category.findOne({
+      where: {
+        url: url,
+      },
+    });
+    if (checkUrl) {
+      return res
+        .status(400)
+        .send({ message: "Категория с таким URL уже существует" });
+    }
+
+    const category = await Category.create({
       name: name,
-    },
-  });
-  if (checkName) {
-    return res
-      .status(400)
-      .send({ message: "Категория с таким названием уже существует" });
-  }
-
-  const checkUrl = await Category.findOne({
-    where: {
       url: url,
-    },
-  });
-  if (checkUrl) {
-    return res
-      .status(400)
-      .send({ message: "Категория с таким URL уже существует" });
+    });
+    res.status(200).send(category);
+  } catch (e) {
+    next(e);
   }
-
-  const category = await Category.create({
-    name: name,
-    url: url,
-  });
-  res.status(200).send(category);
-} catch(e) {
-  next(e)
-}
 };
 
 exports.getAll = async (req, res, next) => {
@@ -57,43 +57,55 @@ exports.getAll = async (req, res, next) => {
     });
     if (!categories) res.status(404).send("Категории не найдены");
     res.status(200).send(categories);
-  } catch(e) {
-    next(e)
+  } catch (e) {
+    next(e);
   }
 };
 
-exports.getById = async (req, res) => {
-  const id = req.params.id;
-  const category = await Category.findByPk(id);
-  if (category) {
-    res.status(200).send(category);
-  } else {
-    res.status(404).send({ message: "Категория не найдена" });
+exports.getById = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findByPk(id);
+    if (category) {
+      res.status(200).send(category);
+    } else {
+      res.status(404).send({ message: "Категория не найдена" });
+    }
+  } catch (e) {
+    next(e);
   }
 };
 
-exports.update = async (req, res) => {
-  const { name, url } = req.body;
-  const id = req.params.id;
-  const category = await Category.findByPk(id);
-  if (!category) {
-    return res.status(404).send({ message: "Категория не найдена" });
+exports.update = async (req, res, next) => {
+  try {
+    const { name, url } = req.body;
+    const id = req.params.id;
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).send({ message: "Категория не найдена" });
+    }
+    await category.update({
+      name: name,
+      url: url,
+    });
+    const updatedCategory = await category.save();
+    res.status(200).send(updatedCategory);
+  } catch (e) {
+    next(e);
   }
-  await category.update({
-    name: name,
-    url: url,
-  });
-  const updatedCategory = await category.save();
-  res.status(200).send(updatedCategory);
 };
 
-exports.delete = async (req, res) => {
-  const id = req.params.id;
-  const category = await Category.findByPk(id);
-  if (!category) {
-    return res.status(404).send({ message: "Категория не найдена" });
+exports.delete = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).send({ message: "Категория не найдена" });
+    }
+    await category.destroy();
+    const deletedCategory = await category.save();
+    res.status(200).send(deletedCategory);
+  } catch (e) {
+    next(e);
   }
-  await category.destroy();
-  const deletedCategory = await category.save();
-  res.status(200).send(deletedCategory);
 };
